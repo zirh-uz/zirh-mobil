@@ -1,4 +1,4 @@
-# Zirh kutubxonasini ishlatish bo‘yicha qo‘llanma
+# Zirh-mobil kutubxonasini ishlatish bo‘yicha qo‘llanma
 Zirh kutubxonasidan foydalanishni boshlash uchun uni o‘z Android loyihangizga to‘g‘ri ulash lozim. Quyidagi bosqichlarni bajaring:
 #
 `settings.gradle.kts` faylini oching, `dependencyResolutionManagement` bo'limidagi `repositories` qatoriga jitpack orqali manzilini qo‘shing: 
@@ -18,13 +18,13 @@ Zirh kutubxonasidan foydalanishni boshlash uchun uni o‘z Android loyihangizga 
 #
 `jitpack.io` repozitoriyasiga ulanish uchun token kerak bo‘ladi. Buning uchun quyidagi qatorni `.gradle/gradle.properties` fayliga qo‘shing:
 ```kotlin
-authToken=jp_uhvnfp5qnsucafao6b0hplsmvs
+authToken=jp_nk2513bvl6g5b8jjv1m0uckif2
 ```
 #
 Endi esa, `app` modulining `build.gradle.kts` faylida `dependencies` bo‘limiga quyidagicha yozing:
 ```kotlin
   dependencies {
-    implementation("com.github.XojiakbarJamoldinov:zirh-mobil-lib:v1.0.0")
+    implementation("com.github.Zirh-uz:zirh-mobil-lib:v1.0.0")
   }
 ```
 #

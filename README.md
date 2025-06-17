@@ -66,7 +66,7 @@ authToken=jp_nk2513bvl6g5b8jjv1m0uckif2
 ---
 # `aar` fayl orqali kutubxonani ulash
 `aar` faylni kutubxonaga qo'shish uchun loyihangizdagi `app` papkasining ichida yangi `libs` nomli papka yarating va unga `.aar` formatidagi
-Zirh kutubxona faylini joylashtiring.
+Zirh-mobil kutubxona faylini joylashtiring.
 ```
 app/
  └── libs/
@@ -96,7 +96,7 @@ dependencies {
 > **Eslatma:**
 > - Kutubxonaning nomi `.aar` fayl nomi bilan to‘g‘ri kelishi kerak `(zirh-mobil-lib-release.aar)`.
 #
-Zirh kutubxonasini loyihangizga ulab bo'lganingizdan so'ng, kod takrorlanishining oldini olish va strukturalashtirish maqsadida barcha `Activity`lar uchun umumiy ota klass yaratish tavsiya etiladi. Odatda bu klass `BaseActivity.kt` (yoki `.java`) deb nomlanadi.Bu klass kutubxonani boshlang'ich sozlash (initializatsiya) uchun xizmat qiladi.
+Zirh-mobil kutubxonasini loyihangizga ulab bo'lganingizdan so'ng, kod takrorlanishining oldini olish va strukturalashtirish maqsadida barcha `Activity`lar uchun umumiy ota klass yaratish tavsiya etiladi. Odatda bu klass `BaseActivity.kt` (yoki `.java`) deb nomlanadi.Bu klass kutubxonani boshlang'ich sozlash (initializatsiya) uchun xizmat qiladi.
 Quyidagi kabi `BaseActivity.kt` faylini yarating:
 ```kotlin
 import uz.zirh.zirhlib.ZirhMilliy

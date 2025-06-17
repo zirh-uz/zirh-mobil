@@ -1,7 +1,7 @@
 # Zirh-mobil kutubxonasini ishlatish bo'yicha yo'riqnoma
 ---
 [![Android](https://img.shields.io/badge/Android-blue?style=for-the-badge)](#android)
-[![Flutter](https://img.shields.io/badge/Flutter-blue?style=for-the-badge)](https://github.com/ninjavue/doc/blob/main/flutter.md)
+[![Flutter](https://img.shields.io/badge/Flutter-blue?style=for-the-badge)](#Flutter)
 
 ---
 # Android
@@ -456,7 +456,7 @@ Quyidagi kod `BaseActivity` klassida `onResume()` ichida `imzoAniqlash()` funksi
         }
     }
 ```
-## Android
+# Flutter
 ---
 ## 📡 `malumotOlish()` Funksiyasi
 

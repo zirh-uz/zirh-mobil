@@ -709,7 +709,8 @@ val parsed = gson.fromJson(jsonString, GetResponse::class.java)
         }
     }.start()
 ```
-> ⚠️ Yuqoridagi `rootniAniqlash()`,`emulyatorniAniqlash()`,`vpnniAniqlash()`, `imzoAniqlash()`, `playMarketniAniqlash()`  funksiyalarni ilovani turli qismlarida takror ishlatish tavsiya etiladi(Ilova ishga tushganda, har bir Activity da, API so'rovlarini jo'natishdan oldin, ...)
+> ✅ **Eslatma:** 
+> Yuqoridagi `rootniAniqlash()`,`emulyatorniAniqlash()`,`vpnniAniqlash()`, `imzoAniqlash()`, `playMarketniAniqlash()`  funksiyalarni ilovani turli qismlarida takror ishlatish tavsiya etiladi(Ilova ishga tushganda, har bir Activity da, API so'rovlarini jo'natishdan oldin, ...)
 
 
 

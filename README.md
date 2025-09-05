@@ -56,13 +56,13 @@ authToken=jp_nk2513bvl6g5b8jjv1m0uckif2
 </settings>
 ```
 #
-<!--Endi esa, `app` modulining `build.gradle.kts` faylida `dependencies` bo‘limiga quyidagicha yozing:
+Endi esa, `app` modulining `build.gradle.kts` faylida `dependencies` bo‘limiga quyidagicha yozing:
 ```kotlin
   dependencies {
     implementation("com.github.Zirh-uz:zirh-mobil-lib:v1.0.2")
   }
 ```
-# -->
+# 
 ---
 # `aar` fayl orqali kutubxonani ulash
 `aar` faylni kutubxonaga qo'shish uchun loyihangizdagi `app` papkasining ichida yangi `libs` nomli papka yarating va unga `.aar` formatidagi

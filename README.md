@@ -11,7 +11,7 @@ Zirh-mobil kutubxonasidan foydalanishni boshlash uchun uni o'z Android loyihangi
 # `jitpack.io`orqali kutubxonani ulash
 `jitpack.io` repozitoriyasiga ulanish uchun token kerak bo‘ladi. Buning uchun quyidagi qatorni `.gradle/gradle.properties` fayliga qo‘shing:
 ```kotlin
-authToken=jp_nk2513bvl6g5b8jjv1m0uckif2
+authToken=jp_dgbjmo7d5eaaap8a6gncr33jh
 ```
 ## `gradle.kts` orqali ulash
 `settings.gradle.kts` faylini oching, `dependencyResolutionManagement` bo'limidagi `repositories` qatoriga jitpack orqali manzilini qo‘shing: 
@@ -49,7 +49,7 @@ authToken=jp_nk2513bvl6g5b8jjv1m0uckif2
   <servers>
     <server>
       <id>jitpack.io</id>
-      <username>jp_nk2513bvl6g5b8jjv1m0uckif2</username>
+      <username>jp_dgbjmo7d5eaaap8a6gncr33jh</username>
       <password>.</password>
     </server>
   </servers>

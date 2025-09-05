@@ -59,7 +59,7 @@ authToken=jp_nk2513bvl6g5b8jjv1m0uckif2
 <!--Endi esa, `app` modulining `build.gradle.kts` faylida `dependencies` bo‘limiga quyidagicha yozing:
 ```kotlin
   dependencies {
-    implementation("com.github.XojiakbarJamoldinov:zirh-mobil-lib:v1.0.0")
+    implementation("com.github.Zirh-uz:zirh-mobil-lib:v1.0.2")
   }
 ```
 # -->

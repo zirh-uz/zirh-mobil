@@ -339,7 +339,7 @@ openssl pkeyutl -encrypt -pubin -inkey public.pem -in aes.raw -out kalit.enc
 ```
 
 Bu yerda:
-- `public.pem` – RSA ochiq kalit
+- `public.pem` – RSA ochiq kalit (yuqorida berilgan)
 - `aes.raw` – AES kalitning binar ko‘rinishi
 - `kalit.enc` – **shifrlangan AES kalit**, bu `data.enc` ni yechish uchun kerak bo‘ladi.
 #

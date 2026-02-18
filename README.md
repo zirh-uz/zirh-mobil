@@ -9,59 +9,59 @@
 Zirh-mobil kutubxonasidan foydalanishni boshlash uchun uni o'z Android loyihangizga to'g'ri ulash lozim. Quyidagi bosqichlarni bajaring:
 ---
 # `jitpack.io`orqali kutubxonani ulash
-`jitpack.io` repozitoriyasiga ulanish uchun token kerak bo‘ladi. Buning uchun quyidagi qatorni `.gradle/gradle.properties` fayliga qo‘shing:
-```kotlin
-authToken=jp_dgbjmo7d5eaaap8a6gncr33jh
-```
-## `gradle.kts` orqali ulash
-`settings.gradle.kts` faylini oching, `dependencyResolutionManagement` bo'limidagi `repositories` qatoriga jitpack orqali manzilini qo‘shing: 
-```kotlin
-  dependencyResolutionManagement {
-    repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
-    repositories {
-        google()
-        mavenCentral()
-        maven {
-            url = uri("https://jitpack.io")
-            credentials.username = providers.gradleProperty("authToken").get()
-        }
-    }
-}
-```
-## `gradle` orqali ulash
-`settings.gradle` faylini oching, `dependencyResolutionManagement` bo'limidagi `repositories` qatoriga jitpack orqali manzilini qo‘shing: 
-```kotlin
-  dependencyResolutionManagement {
-    repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
-    repositories {
-        google()
-        mavenCentral()
-        maven {
-            url = uri("https://jitpack.io")
-            credentials = {username, authToken}
-        }
-    }
-}
-```
-## `maven` orqali ulash
-```kotlin
- <settings>
-  <servers>
-    <server>
-      <id>jitpack.io</id>
-      <username>jp_dgbjmo7d5eaaap8a6gncr33jh</username>
-      <password>.</password>
-    </server>
-  </servers>
-</settings>
-```
+#`jitpack.io` repozitoriyasiga ulanish uchun token kerak bo‘ladi. Buning uchun quyidagi qatorni `.gradle/gradle.properties` fayliga qo‘shing:
+#```kotlin
+#authToken=jp_dgbjmo7d5eaaap8a6gncr33jh
+#```
+### `gradle.kts` orqali ulash
+#`settings.gradle.kts` faylini oching, `dependencyResolutionManagement` bo'limidagi `repositories` qatoriga jitpack orqali manzilini qo‘shing: 
+#```kotlin
+#  dependencyResolutionManagement {
+#    repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
+#    repositories {
+#        google()
+#        mavenCentral()
+#        maven {
+#            url = uri("https://jitpack.io")
+#            credentials.username = providers.gradleProperty("authToken").get()
+#        }
+#    }
+#}
+#```
+### `gradle` orqali ulash
+#`settings.gradle` faylini oching, `dependencyResolutionManagement` bo'limidagi `repositories` qatoriga jitpack orqali manzilini qo‘shing: 
+#```kotlin
+#  dependencyResolutionManagement {
+#    repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
+#    repositories {
+#        google()
+#        mavenCentral()
+#        maven {
+#            url = uri("https://jitpack.io")
+#            credentials = {username, authToken}
+#        }
+#    }
+#}
+#```
+### `maven` orqali ulash
+#```kotlin
+# <settings>
+#  <servers>
+#    <server>
+#      <id>jitpack.io</id>
+#      <username>jp_dgbjmo7d5eaaap8a6gncr33jh</username>
+#      <password>.</password>
+#    </server>
+#  </servers>
+#</settings>
+#```
 #
-Endi esa, `app` modulining `build.gradle.kts` faylida `dependencies` bo‘limiga quyidagicha yozing:
-```kotlin
-  dependencies {
-    implementation("com.github.Zirh-uz:zirh-mobil-lib:v1.0.3")
-  }
-```
+#Endi esa, `app` modulining `build.gradle.kts` faylida `dependencies` bo‘limiga quyidagicha yozing:
+#```kotlin
+#  dependencies {
+#    implementation("com.github.Zirh-uz:zirh-mobil-lib:v1.0.3")
+#  }
+#```
 # 
 ---
 # `aar` fayl orqali kutubxonani ulash

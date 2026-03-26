@@ -15,7 +15,7 @@ Zirh-mobil kutubxona faylini joylashtiring.
 ```
 app/
  └── libs/
-      └── zirhlib-releasex.x.x.aar
+      └── zirhlib-release-v2.0.0.aar
 ```
 #
 ## `settings.gradle` yoki `settings.gradle.kts` faylida `flatDir` sozlamasini yozing
@@ -126,7 +126,7 @@ repositories {
 app modulining build.gradle.kts faylida kutubxonani ulash
 ```
 dependencies {
-    implementation(files("libs/zirhlib-releasex.x.x.aar"))
+    implementation(files("libs/zirhlib-release-v2.0.0.aar"))
 }
 ```
 jitpack orqali app modulining build.gradle.kts faylida kutubxonani ulash

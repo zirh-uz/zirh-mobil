@@ -104,7 +104,7 @@ flutter_project/
 ├── android/
 │   ├── app/
 │   │   ├── libs/                            ← 📂 Bu yerga .aar fayl qo‘yiladi
-│   │   │   └── zirhlib-release-v2.0.0.aar   ← 📦 JNI kutubxonani o‘z ichiga olgan .aar fayl
+│   │   │   └── zirh-mobil-lib-release.aar   ← 📦 JNI kutubxonani o‘z ichiga olgan .aar fayl
 │   │   ├── src/
 │   │   └── build.gradle.kts
 │   └── ...
@@ -126,7 +126,7 @@ repositories {
 app modulining build.gradle.kts faylida kutubxonani ulash
 ```
 dependencies {
-    implementation(files("libs/zirhlib-release-v2.0.0.aar"))
+    implementation(files("libs/zirhlib-releasex.x.x.aar"))
 }
 ```
 jitpack orqali app modulining build.gradle.kts faylida kutubxonani ulash
@@ -371,11 +371,11 @@ zirh.callApi("delete_post");
 
 ### ✨ Nima uchun shifrlash zarur?
 
-Ilovada ishlatiladigan ba'zi muhim ma'lumotlar — masalan, **backend server URL’lari**, **directory manzillar**, **tokenlar**, **hash qiymatlar**, **ilovaning imzo (signature) ma'lumotlari**, **ilova UI komponentalari**, **ilovada ishlatiladigan stringlar**, **ilovaga zarur mantiqiy qiymatlarni** va **Ilovaning turli qurilmalarda ishlashi uchun konfiguratsiya parametrlarini** — maxfiy va xavfsizlik talablariga javob beruvchi shaklda saqlanishi kerak.
+Ilovada ishlatiladigan ba'zi muhim ma'lumotlar — masalan, **backend server URL’lari**, **directory manzillar**, **tokenlar**, **hash qiymatlar**, **ilovaning imzo (signature) ma'lumotlari**, **ilova UI komponentalari**, **ilovada ishlatiladigan stringlar**, **ilovaga zarur mantiqiy qiymatlarni** va **ilovaning turli qurilmalarda ishlashi uchun konfiguratsiya parametrlarini** — maxfiy va xavfsizlik talablariga javob beruvchi shaklda saqlanishi kerak.
 
-Agar bu ma’lumotlar shifrlanmagan holda apk ichida yoki fayl tizimida saqlansa, ular tahlil qilinib (reverse engineering), ilovaga hujum qilish, himoya vositalarini osonlik bilan olib tashlash yoki aylanib o'tish, soxta so‘rov yuborish yoki serverdan noto‘g‘ri foydalanish uchun ishlatilishi mumkin.
+Agar bu ma’lumotlar shifrlanmagan holda apk ichida yoki fayl tizimida saqlansa, ular tahlil qilinib (reverse engineering), ilovaga hujum qilish, himoya vositalarini osonlik bilan olib tashlash yoki aylanib o'tishni, soxta so‘rov yuborish yoki serverdan noto‘g‘ri foydalanish uchun ishlatilishi mumkin.
 
-Shuning uchun **shifrlash yordamida bu ma’lumotlarni himoyalash** va ularni faqat kerakli paytda, kerakli joyda yechib olish (deshifrovka qilish) lozim bo‘ladi.
+Shuning uchun **shifrlash yordamida bu ma’lumotlarni himoyalash** va ularni faqat kerakli paytda, kerakli joyda yechib olish (deshifrovka qilish) orqali ilovaning xavfsizligini yaxshilashimiz mumkin bo'ladi.
 
 #
 
@@ -387,7 +387,7 @@ Shuning uchun **shifrlash yordamida bu ma’lumotlarni himoyalash** va ularni fa
 - 🖋 Ilovaning imzo sertifikati (signature)  
 - 🎨 Ilova UI komponentalari
 - ⚙️ Ilovaga zarur mantiqiy qiymatlar
-
+- 🔤 Ilovada ishlatiladigan stringlar
 #
 
 ### 📌 Shifrlash va foydalanish ketma-ketligi
@@ -398,14 +398,87 @@ Birinchi bosqichda maxfiy ma'lumotlar `data.json` faylga quyidagi formatda yozil
 
 ```json
 {
-    "imzo": "c4fbec9f103e46f13864c208ea93a26a48cd2092428c5dae3b7529703b74f7c9",
-    "playmarket":true,
-    "emulyator":true,
-    "vpn":true,
-    "hashlar": [ "sha256//k+swi1D7Mu27FDJ9DAfns27/YipZz5s7BezuYsaXM/s="]
-   
+    "playmarket": false,
+    "emulyator": true,
+    "vpn": true,
+
+    "hashlar": [
+        "sha256//k+swi1D7Mu27FDJ9DAfns27/YipZz5s7BezuYsaXM/s=",
+        "sha256//ItYAkeNu4OWLwJwqsG+rlGN46LIFJkfrRcx9BFbuTtA=",
+        "sha256//xvnBemDjgnzraqJYsDMz2CgXT2Zq3CFBfmyyYSdLdrU=",
+        "sha256//5BWYNtPxvjsl+qhQLxo3jz3ZaK74xyHT/QdOhBB07i0="
+    ],
+
+    "domainlar": [
+        "https://jsonplaceholder.typicode.com",
+        "https://httpbin.org"
+    ],
+
+    "api": {
+        "base_url": "https://jsonplaceholder.typicode.com",
+        "endpoints": {
+            "get_post": {"path": "/posts/1", "method": "GET"},
+            "create_post": {"path": "/posts", "method": "POST"},
+            "update_post": {"path": "/posts/1", "method": "PUT"},
+            "delete_post": {"path": "/posts/1", "method": "DELETE"}
+        }
+    },
+
+    "ui": {
+        "colors": {
+            "background": "#0F172A",
+            "card": "#1E293B",
+            "primary": "#2563EB",
+            "text_light": "#FFFFFFB3",
+            "text_dark": "#FFFFFF"
+        },
+        "labels": {
+            "dashboard_title": "Zirh Dashboard",
+            "vpn_status": "VPN",
+            "emulator_status": "Emulyator",
+            "playmarket_status": "Play Market"
+        },
+        "buttons": {
+            "refresh": "Yangilash"
+        }
+    }
 }
 ```
+
+Agar siz kutubxonani `malumotalmashish()` funksiyasidan foydalanmoqchi bo'lsangiz `data.json` faylni ichiga majburiy tarzda `hashlar` maydoni bo'lishi kerak. Ilova ushbu hashlar orqali server bilan xavfsiz aloqani yani SSL Pinningni amalga oshiradi. Yuqoridagi hashni farmati kabi o'z serveringizdan `sha256` farmatda olish uchun quydagi kamandadan foydalanishingiz mumkin bo'ladi.
+
+```bash
+echo | openssl s_client -connect kun.uz:443 -servername kun.uz 2>/dev/null \
+| openssl x509 -pubkey -noout \
+| openssl pkey -pubin -outform DER \
+| openssl dgst -sha256 -binary \
+| openssl enc -base64
+```
+>SSL Pinning bu ilova va server o'rtasidagi so'rovlarga uchinchi shaxs aralashishidan himoyalaydi.
+
+
+Yuqoridagi data.jsondan ilovada quyidagicha UI komponentalarini chaqirib ishlatishimiz mumkin bo'ladi.
+
+```dart
+void _loadConfig() {
+    // Ranglar, label va button textlarini o‘qish
+    final uiColors = zirh.get("ui.colors");
+    final uiLabels = zirh.get("ui.labels");
+    final uiButtons = zirh.get("ui.buttons");
+    final domainList = zirh.get("domainlar");
+
+    setState(() {
+      colors = uiColors.isNotEmpty ? jsonDecode(uiColors) : {};
+      labels = uiLabels.isNotEmpty ? jsonDecode(uiLabels) : {};
+      buttons = uiButtons.isNotEmpty ? jsonDecode(uiButtons) : {};
+      domains = domainList.isNotEmpty
+          ? (jsonDecode(domainList) as List).map((e) => e.toString()).toList()
+          : [];
+    });
+  }
+```
+
+
 Bu fayl kutubxonani konfiguratsiya fayli bo'lib, agar ilovada `playmarket`, `emulyator` va `vpn` tekshiruvi joriy etish kerak bo'lsa ularni `true` qiymatga tenglab qo'yish kerak bo'ladi. Agarda bu tekshiruvlar kerak bo'lmasa `false` qiymatga tenglash kerak bo'ladi.
 
 ### 🔑 2. AES-256 kalitni yaratish
@@ -537,7 +610,7 @@ Agar ilova real qurilmada ishlayotgan bo‘lsa, ilova ishlashni davom etadi aks 
 
 
 ---
-## ⚠️ Root qurulmalarni aniqlash
+## ⚠️ Root qurilmalarni aniqlash
 Ilovani Play Marketga o'rnatishdan oldin quydagi sozlamalarni qilish kerak bo'ladi.
 Console Play Marketga o'tib (https://play.google.com/console) quydagi ketma ketliklarni bajaring.
 
@@ -562,8 +635,9 @@ Monitor and improve
 
 Bu bo'limlarda siz `Device integrity checks` yoki `Strong integrity checks` ni tanlab qo'yishingiz zarur bu root qilingan va haqiqiyligi yo'qolgan qurulmalarda play marketdan ilova chiqmasligini taminlaydi.
 
-Ushbu funksiya ilova ishga tushgan qurilmaning **root qilinganligini** aniqlash uchun ishlatiladi.  
+Ushbu funksiya ilova ishga tushgan qurilmaning **root qilinganligini** doimiy ravishda aniqlaydi.  
 Agar qurilma root qilingan bo‘lsa, ilova rootlangan qurilmada ishga tushmaydi.
+Bundan tashqari zararli scriptlarni qo'llanganda ham ilova ishga tushmaydi.
 
 > 🔐 **Root qilingan qurilma xavfsizlik talablariga javob bermaydi.**  
 > Bunday qurilmalar ilovalarning:
@@ -772,7 +846,4 @@ private fun sendGet() {
     }
 
 ```
-
-
-
 

@@ -35,7 +35,7 @@ dependencyResolutionManagement {
 #
 ```kotlin
 dependencies {
-    implementation(":zirhlib-releasex.x.x.aar")
+    implementation(":zirhlib-release-v2.0.0.aar")
 }
 ```
 > **Eslatma:**

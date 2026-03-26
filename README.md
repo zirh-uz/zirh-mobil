@@ -104,7 +104,7 @@ flutter_project/
 ├── android/
 │   ├── app/
 │   │   ├── libs/                            ← 📂 Bu yerga .aar fayl qo‘yiladi
-│   │   │   └── zirh-mobil-lib-release.aar   ← 📦 JNI kutubxonani o‘z ichiga olgan .aar fayl
+│   │   │   └── zirhlib-release-v2.0.0.aar   ← 📦 JNI kutubxonani o‘z ichiga olgan .aar fayl
 │   │   ├── src/
 │   │   └── build.gradle.kts
 │   └── ...
@@ -126,7 +126,7 @@ repositories {
 app modulining build.gradle.kts faylida kutubxonani ulash
 ```
 dependencies {
-    implementation(files("libs/zirhlib-releasex.x.x.aar"))
+    implementation(files("libs/zirhlib-release-v2.0.0.aar"))
 }
 ```
 jitpack orqali app modulining build.gradle.kts faylida kutubxonani ulash

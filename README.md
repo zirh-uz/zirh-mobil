@@ -15,7 +15,7 @@ Zirh-mobil kutubxona faylini joylashtiring.
 ```
 app/
  └── libs/
-      └── zirh-mobil-lib-release.aar
+      └── zirhlib-releasex.x.x.aar
 ```
 #
 ## `settings.gradle` yoki `settings.gradle.kts` faylida `flatDir` sozlamasini yozing
@@ -35,30 +35,46 @@ dependencyResolutionManagement {
 #
 ```kotlin
 dependencies {
-    implementation(":zirh-mobil-lib-release.aar")
+    implementation(":zirhlib-releasex.x.x.aar")
 }
 ```
 > **Eslatma:**
-> - Kutubxonaning nomi `.aar` fayl nomi bilan to‘g‘ri kelishi kerak `(zirh-mobil-lib-release.aar)`.
-#
-Zirh-mobil kutubxonasini loyihangizga ulab bo'lganingizdan so'ng, kod takrorlanishining oldini olish va strukturalashtirish maqsadida barcha `Activity`lar uchun umumiy ota klass yaratish tavsiya etiladi. Odatda bu klass `BaseActivity.kt` (yoki `.java`) deb nomlanadi.Bu klass kutubxonani boshlang'ich sozlash (initializatsiya) uchun xizmat qiladi.
-Quyidagi kabi `BaseActivity.kt` faylini yarating:
-```kotlin
-import uz.zirh.zirhlib.ZirhMilliy
+> - Kutubxonaning nomi `.aar` fayl nomi bilan to‘g‘ri kelishi kerak `(zirhlib-releasex.x.x.aar)`.
 
-open class BaseActivity : ComponentActivity() {
-    private lateinit var lib: ZirhMilliy
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        ZirhMilliy.faylManzili(assets)
-        lib = ZirhMilliy() 
+# Zirh kutubxonasini `jitpack` orqali loyihaga qo'shish
+
+#
+## `settings.gradle` yoki `settings.gradle.kts` faylida quydagicha yozing
+```kotlin
+dependencyResolutionManagement {
+    repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
+    repositories {
+        google()
+        mavenCentral()
+        maven { url = uri("https://jitpack.io") }
     }
 }
 ```
+## `app` modulining `build.gradle` faylida kutubxonani ulash
 #
-`AndroidManifest.xml` faylliga internet uchun ruxsat(permission) qo'shing.
+```kotlin
+dependencies {
+    implementation("com.github.Zirh-uz:mobil-lib:2.0.0")
+}
+```
+
+#
+`AndroidManifest.xml` faylliga internet uchun ruxsatlarni(permission) qo'shing.
 ```xml
 <uses-permission android:name="android.permission.INTERNET" />
+<uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+```
+Quydagi queriesni `AndroidManifest.xml` faylga qo'shing
+```xml
+ <queries>
+       <package android:name="com.android.vending" />
+       <package android:name="com.sec.android.app.samsungapps" />
+</queries>
 ```
 # Flutter
 
@@ -110,7 +126,23 @@ repositories {
 app modulining build.gradle.kts faylida kutubxonani ulash
 ```
 dependencies {
-    implementation(files("libs/zirh-mobil-lib-release.aar"))
+    implementation(files("libs/zirhlib-releasex.x.x.aar"))
+}
+```
+jitpack orqali app modulining build.gradle.kts faylida kutubxonani ulash
+```
+dependencies {
+    implementation("com.github.Zirh-uz:mobil-lib:2.0.0")
+}
+```
+jitpack orqali bo'lganda android/build.gradle.kts fayliga quyidagi o'zgarishni qilish kerak bo'ladi 
+```
+allprojects {
+    repositories {
+        google()
+        mavenCentral()
+        maven { url = uri("https://jitpack.io") }
+    }
 }
 ```
 Eslatma:
@@ -129,82 +161,219 @@ app/
 |            
 ```
 
-
-`app/src/main/kotlin/.../MainActivity.kt` faylimizga `uz.zirh.zirhlib.ZirhMilliy` kutubxonani import qilib olamiz.
+ main.dart faylida native (C/C++) kutubxona bilan qanday ishlash ko‘rsatiladi. Bu yerda FFI (Foreign Function Interface) yordamida .so fayldan ma’lumotlar olinadi.
 ```dart
-package <package nomi>
-
-import io.flutter.embedding.android.FlutterActivity
-import io.flutter.embedding.engine.FlutterEngine
-import io.flutter.plugin.common.MethodChannel
-...
-import uz.zirh.zirhlib.ZirhMilliy
+import 'dart:convert';
+import 'dart:ffi' as ffi;
+import 'package:ffi/ffi.dart';
+import 'package:flutter/material.dart';
 ```
-`MethodChannel`da kutubxona funksiyalaridan biridan foydalanish usuli.
+dart:ffi → native (C/C++) kod bilan ishlash uchun
+ffi.dart → pointerlarni boshqarish (UTF8 conversion)
+dart:convert → JSON parsing uchun
+
+Native funksiya signaturalari
+
 ```dart
-class MainActivity : FlutterActivity() {
+typedef NativeGetInfoFn = ffi.Pointer<Utf8> Function(ffi.Pointer<Utf8> key);
+typedef DartGetInfoFn = ffi.Pointer<Utf8> Function(ffi.Pointer<Utf8> key);
+```
+Bu klass native kutubxona bilan ishlashni markazlashtiradi. (Ilovada faqat bitta instance ishlaydi)
+```dart
+static final ZirhService _instance = ZirhService._internal();
+factory ZirhService() => _instance;
+```
+Native kutubxonani yuklash
 
-    private val CHANNEL = "com.example.zirh/root" /// com.exampe.zirh/root -> bu bizda kanal nomi yani kutubxonaga murojaat qilish uchun
+```dart
+final lib = ffi.DynamicLibrary.open('libmobil.so');
+```
+Funksiyani bog‘lash
+Native funksiyani Flutterga ulaydi
+Key orqali ma’lumot qaytaradi
+```dart
+_getInfo = lib.lookupFunction<NativeGetInfoFn, DartGetInfoFn>(
+  'flutter_malumot_olish',
+);
 
-    override fun configureFlutterEngine(flutterEngine: FlutterEngine) {
-        super.configureFlutterEngine(flutterEngine)
+```
+Ma’lumot olish funksiyalari
+```dart
+String get(String key)
+```
+## Minimal kod misolida ko'rishimiz mumkin
+```dart
+import 'dart:convert';
+import 'dart:ffi' as ffi;
+import 'package:ffi/ffi.dart';
+import 'package:flutter/material.dart';
 
-        MethodChannel(flutterEngine.dartExecutor.binaryMessenger, CHANNEL).setMethodCallHandler { call, result ->
-            when (call.method) {
-                "rootlikkatekshirish" -> {
-                    try {
-                        val isRooted = ZirhMilliy().rootniAniqlash()
-                        result.success(isRooted)
-                    } catch (e: Exception) {
-                        result.error("JNI_ERROR", "Failed to call native rootniAniqlash", e.message)
-                    }
-                }
-                else -> {
-                    result.notImplemented()
-                }
+// Native signature
+typedef NativeGetInfoFn = ffi.Pointer<Utf8> Function(ffi.Pointer<Utf8>);
+typedef DartGetInfoFn = ffi.Pointer<Utf8> Function(ffi.Pointer<Utf8>);
+
+class ZirhService {
+  late final DartGetInfoFn _getInfo;
+
+  void init() {
+    final lib = ffi.DynamicLibrary.open('libmobil.so');
+    _getInfo = lib.lookupFunction<NativeGetInfoFn, DartGetInfoFn>(
+      'flutter_malumot_olish',
+    );
+  }
+
+  List<String> getDomains() {
+    final keyPtr = "domainlar".toNativeUtf8();
+    final resPtr = _getInfo(keyPtr);
+    malloc.free(keyPtr);
+
+    if (resPtr.address == 0) return [];
+
+    final raw = resPtr.toDartString();
+
+    // JSON array bo‘lsa
+    try {
+      final decoded = jsonDecode(raw);
+      if (decoded is List) {
+        return decoded.map((e) => e.toString()).toList();
+      }
+    } catch (_) {}
+
+    // fallback (a,b,c)
+    return raw.split(',').map((e) => e.trim()).toList();
+  }
+}
+
+void main() {
+  final zirh = ZirhService();
+  zirh.init();
+
+  runApp(MaterialApp(
+    home: Scaffold(
+      appBar: AppBar(title: Text("Domains")),
+      body: FutureBuilder(
+        future: Future.value(zirh.getDomains()),
+        builder: (context, snapshot) {
+          if (!snapshot.hasData) return CircularProgressIndicator();
+
+          final domains = snapshot.data!;
+          return ListView(
+            children: domains.map((d) => ListTile(title: Text(d))).toList(),
+          );
+        },
+      ),
+    ),
+  ));
+}
+```
+## Malumot Almashish 
+
+Dart tomonidan chaqiriladi va native kutubxona bilan to‘g‘ridan-to‘g‘ri bog‘lanadi.
+```dart
+typedef NativeRequestFn = ffi.Pointer<Utf8> Function(
+    ffi.Pointer<Utf8>,
+    ffi.Pointer<Utf8>,
+    ffi.Pointer<Utf8>,
+    ffi.Pointer<Utf8>,
+    ffi.Pointer<Utf8>,
+    ffi.Pointer<ffi.Uint8>,
+    ffi.Int32,
+    ffi.Pointer<Utf8>,
+    ffi.Pointer<Utf8>,
+    );
+
+typedef DartRequestFn = ffi.Pointer<Utf8> Function(
+    ffi.Pointer<Utf8>,
+    ffi.Pointer<Utf8>,
+    ffi.Pointer<Utf8>,
+    ffi.Pointer<Utf8>,
+    ffi.Pointer<Utf8>,
+    ffi.Pointer<ffi.Uint8>,
+    int,
+    ffi.Pointer<Utf8>,
+    ffi.Pointer<Utf8>,
+    );
+
+```
+Bizda data.json quyidagicha bo'lgan holatda
+```dart
+{
+    "playmarket": false,
+    "emulyator": true,
+    "vpn": true,
+
+    "hashlar": [
+        "sha256//k+swi1D7Mu27FDJ9DAfns27/YipZz5s7BezuYsaXM/s=",
+        "sha256//ItYAkeNu4OWLwJwqsG+rlGN46LIFJkfrRcx9BFbuTtA=",
+        "sha256//xvnBemDjgnzraqJYsDMz2CgXT2Zq3CFBfmyyYSdLdrU=",
+        "sha256//5BWYNtPxvjsl+qhQLxo3jz3ZaK74xyHT/QdOhBB07i0="
+    ],
+
+    "domainlar": [
+        "https://jsonplaceholder.typicode.com",
+        "https://httpbin.org"
+    ],
+
+    "api": {
+        "base_url": "https://jsonplaceholder.typicode.com",
+
+        "endpoints": {
+            "get_post": {
+                "path": "/posts/1",
+                "method": "GET"
+            },
+            "create_post": {
+                "path": "/posts",
+                "method": "POST"
+            },
+            "update_post": {
+                "path": "/posts/1",
+                "method": "PUT"
+            },
+            "delete_post": {
+                "path": "/posts/1",
+                "method": "DELETE"
             }
         }
     }
 }
 ```
-
-`app/src/main/kotlin/.../MainActivity.kt` faylimizning eng pastki qismiga quyidagicha kutubxonani yuklab olish funksiyasini kiritib qo'yamiz.
-
+FFI orqali bog'lanish
 ```dart
-companion object {
-        init {
-            System.loadLibrary("mobil") // ← .so kutubxonangiz nomi (masalan, libzirh.so bo‘lsa "zirh" yoziladi)
-        }
-    }
+ final lib = ffi.DynamicLibrary.open('libmobil.so');
+
+_get = lib.lookupFunction<NativeGetInfoFn, DartGetInfoFn>(
+  'flutter_malumot_olish',
+);
+
+_request = lib.lookupFunction<NativeRequestFn, DartRequestFn>(
+  'flutter_malumot_almashish',
+);
 ```
-Endi flutter uchun `bridge.dart` yaratib olamiz. bridge.dart orqali biz flutter loyihamizda istalgan fayl koddan turib foydalanish imkonini beradi.
+API chaqirish qismi
 ```dart
-import 'package:flutter/services.dart';
+// GET
+zirh.callApi("get_post");
 
-class ZirhMilliyNativeBridge {
-  static const _channel = MethodChannel('com.example.zirh/root'); /// kanal nomi berilishi lozim
+// POST
+zirh.callApi("create_post", body: {"title": "Test", "body": "Hello", "userId": 1});
 
-  static Future<bool> rootniAniqlash() async {
-    try {
-      final bool? result = await _channel.invokeMethod<bool>('rootlikkatekshirish');
-      return result ?? false;
-    } on PlatformException catch (e) {
-      print('JNI method error: ${e.message}');
-      return false;
-    }
-  }
-}
+// PUT
+zirh.callApi("update_post", body: {"id": 1, "title": "Updated", "body": "Yangilandi"});
 
+// DELETE
+zirh.callApi("delete_post");
 ```
+
 
 ---
 ## 🔐 Ma'lumotlarni Shifrlash
 
 ### ✨ Nima uchun shifrlash zarur?
 
-Ilovada ishlatiladigan ba'zi muhim ma'lumotlar — masalan, **backend server URL’lari**, **directory manzillar**, **tokenlar**, **hash qiymatlar**, va **ilovaning imzo (signature) ma'lumotlari** — maxfiy va xavfsizlik talablariga javob beruvchi shaklda saqlanishi kerak.
+Ilovada ishlatiladigan ba'zi muhim ma'lumotlar — masalan, **backend server URL’lari**, **directory manzillar**, **tokenlar**, **hash qiymatlar**, **ilovaning imzo (signature) ma'lumotlari**, **ilova UI komponentalari**, **ilovada ishlatiladigan stringlar**, **ilovaga zarur mantiqiy qiymatlarni** va **Ilovaning turli qurilmalarda ishlashi uchun konfiguratsiya parametrlarini** — maxfiy va xavfsizlik talablariga javob beruvchi shaklda saqlanishi kerak.
 
-Agar bu ma’lumotlar shifrlanmagan holda apk ichida yoki fayl tizimida saqlansa, ular tahlil qilinib (reverse engineering), ilovaga hujum qilish, soxta so‘rov yuborish yoki serverdan noto‘g‘ri foydalanish uchun ishlatilishi mumkin.
+Agar bu ma’lumotlar shifrlanmagan holda apk ichida yoki fayl tizimida saqlansa, ular tahlil qilinib (reverse engineering), ilovaga hujum qilish, himoya vositalarini osonlik bilan olib tashlash yoki aylanib o'tish, soxta so‘rov yuborish yoki serverdan noto‘g‘ri foydalanish uchun ishlatilishi mumkin.
 
 Shuning uchun **shifrlash yordamida bu ma’lumotlarni himoyalash** va ularni faqat kerakli paytda, kerakli joyda yechib olish (deshifrovka qilish) lozim bo‘ladi.
 
@@ -216,6 +385,8 @@ Shuning uchun **shifrlash yordamida bu ma’lumotlarni himoyalash** va ularni fa
 - 🔑 API tokenlar, maxfiy kalitlar  
 - 🧮 Hashlangan qiymatlar (masalan, SHA256)  
 - 🖋 Ilovaning imzo sertifikati (signature)  
+- 🎨 Ilova UI komponentalari
+- ⚙️ Ilovaga zarur mantiqiy qiymatlar
 
 #
 
@@ -227,13 +398,16 @@ Birinchi bosqichda maxfiy ma'lumotlar `data.json` faylga quyidagi formatda yozil
 
 ```json
 {
-    "domainlar": ["https://jsonplaceholder.typicode.com", "https://httpbin.org"],
-    "havolalar": ["posts", "post"],
-    "hashlar": ["sha256///UzJAZYxLBnEpBwXAcmd4WHi7f8aYgfMExGnoyp5B04=", "sha256//IFG+z/oQKXfpUYOHgWHy5axgkT9B01XSxwb2AHDyN34="],
-    "tokenlar": ["abc123", "def456", "ghi789"],
-    "imzo": "B83BC82F4E631114B79E5E01DB8590CAF76D3384B2CFCFEE27F31B0C886262B1"
+    "imzo": "c4fbec9f103e46f13864c208ea93a26a48cd2092428c5dae3b7529703b74f7c9",
+    "playmarket":true,
+    "emulyator":true,
+    "vpn":true,
+    "hashlar": [ "sha256//k+swi1D7Mu27FDJ9DAfns27/YipZz5s7BezuYsaXM/s="]
+   
 }
 ```
+Bu fayl kutubxonani konfiguratsiya fayli bo'lib, agar ilovada `playmarket`, `emulyator` va `vpn` tekshiruvi joriy etish kerak bo'lsa ularni `true` qiymatga tenglab qo'yish kerak bo'ladi. Agarda bu tekshiruvlar kerak bo'lmasa `false` qiymatga tenglash kerak bo'ladi.
+
 ### 🔑 2. AES-256 kalitni yaratish
 
 ```bash
@@ -250,20 +424,47 @@ Bu buyruq orqali **256-bit AES kalit** yaratiladi va `base64` formatda `aes.key`
 base64 -d aes.key | xxd -p -c 256
 ```
 
-Natijada siz AES kalitni 64 ta belgidan iborat **hex formatdagi** qiymatini olasiz. Ushbu qiymat quyida `-K` parametriga qo‘shiladi.
+Natijada siz AES kalitni 64 ta belgidan iborat **hex formatdagi** qiymatini olasiz. Ushbu qiymatni siz pastdagi kodni ichidagagi `AES_KEY_HEX` shu o'zgaruvchini qiymatidagi `e5f3d69593946edbe60ad48663c15e2e503def3c6f7691b46fe81d9c67b15fd8` shu hashni o'rniga joylashtiring.
 
 #
 
-### 🔐 4. JSON faylni AES-256-CBC bilan shifrlash
+### 🔐 4. JSON faylni AES bilan shifrlash
 
-```bash
-openssl enc -aes-256-cbc -in data.json -out data.enc -K <AES_KALIT_HEX_QIYMAT> -iv 00000000000000000000000000000000 -nosalt
+`encrypt.sh` fayl oching va quydagi kodni fayl ichiga yozing va saqlang.
+
+```python
+#!/bin/bash
+
+# Sozlamalar
+INPUT_FILE="data.json"
+OUTPUT_FILE="data.enc"
+AES_KEY_HEX="e5f3d69593946edbe60ad48663c15e2e503def3c6f7691b46fe81d9c67b15fd8" # 64 ta belgi (256-bit)
+
+# 1. Tasodifiy 16 baytli (32 ta hex belgisi) IV yaratish
+IV_HEX=$(openssl rand -hex 16)
+echo "Yaratilgan IV: $IV_HEX"
+
+# 2. IV-ni HEX-dan Binary-ga o'tkazish (xxd-siz)
+# Biz IV-ni shunchaki shifrlayotgandek qilib, lekin "null" shifr bilan binary-ga o'tkazamiz
+echo -n "$IV_HEX" | openssl enc -aes-256-cbc -K "$AES_KEY_HEX" -iv "$IV_HEX" -p | grep "iv=" | cut -d= -f2 > /dev/null # Bu qator shunchaki tekshiruv uchun
+
+# Eng oddiy yo'li: IV-ni binary faylga yozish uchun openssl rand-dan foydalanamiz
+# Lekin bizga aynan o'sha $IV_HEX kerak. Shuning uchun printf-dan foydalanamiz:
+printf "$(echo $IV_HEX | sed 's/\(..\)/\\x\1/g')" > iv.bin
+
+# 3. Ma'lumotni shifrlash
+openssl enc -aes-256-cbc -K "$AES_KEY_HEX" -iv "$IV_HEX" -in "$INPUT_FILE" -out "temp.bin" -nosalt
+
+# 4. Birlashtirish: IV (16 byte) + Ciphertext
+cat iv.bin temp.bin > "$OUTPUT_FILE"
+
+# 5. Tozalash
+rm iv.bin temp.bin
+
+echo "Tayyor: $OUTPUT_FILE (IV boshiga biriktirildi)"
+
 ```
-
-> **Eslatma:**
-> - `-K` – yuqorida olingan hex AES kalit
-> - `-iv` – **o‘zgarmas** (fixed) IV qiymat: `00000000000000000000000000000000`
-> - `-nosalt` – deterministik natija olish uchun
+Faylni saqlab olganingizdan keyin faylni ishga tushuring natijada sizda shifrlangan `data.enc` fayli hosil bo'ladi. 
 
 #
 
@@ -280,11 +481,11 @@ Bu qadamda `aes.key` ni raw ikkilamchi formatga o‘tkazasiz. Sababi, RSA bilan 
 ### 🛡 6. RSA public kalit bilan AES kalitni shifrlash
 
 ```bash
-openssl pkeyutl -encrypt -pubin -inkey public.pem -in aes.raw -out kalit.enc
+openssl pkeyutl -encrypt -pubin -inkey public_key.pem -in aes.raw -out kalit.enc -pkeyopt rsa_padding_mode:oaep -pkeyopt rsa_oaep_md:sha256 -pkeyopt rsa_mgf1_md:sha256
 ```
 
 Bu yerda:
-- `public.pem` – RSA ochiq kalit (yuqorida berilgan)
+- `public_key.pem` – RSA ochiq kalit (yuqorida berilgan)
 - `aes.raw` – AES kalitning binar ko‘rinishi
 - `kalit.enc` – **shifrlangan AES kalit**, bu `data.enc` ni yechish uchun kerak bo‘ladi.
 #
@@ -312,52 +513,10 @@ app/
 
 ---
 
-
-## 📁 `faylManzili()` Funksiyasi
-
-Ushbu funksiya kutubxonaga **`assets` papkasidagi faylga kirish imkonini beradi**.  
-Funksiyani chaqirish orqali kutubxona ichida joylashgan faylga to‘g‘ridan-to‘g‘ri kirish va uni o‘qish imkoniyati paydo bo‘ladi.
-
-> 📌 **Eslatma:** Faylga kirish uchun Android ilovasidagi `assets` obyektini funksiya ichiga uzatishingiz kerak.
-
-#
-
-### 💻 Foydalanish namunasi
-
-Quyidagi kod `BaseActivity` klassida `onCreate()` ichida `faylManzili()` funksiyasini qanday chaqirishni ko‘rsatadi:
-
-```kotlin
-override fun onCreate(savedInstanceState: Bundle?) {
-    super.onCreate(savedInstanceState)
-    
-    // assets papkasiga kirish uchun kutubxonaga kontekst beriladi
-    ZirhMilliy.faylManzili(assets)
-}
-```
-
-#
-
-### 📂 Qayerdagi faylni o‘qiydi?
-
-`assets/` papkasida joylashgan fayllarni o‘qish uchun mo‘ljallangan.  
-Masalan:
-
-```
-app/
-├── src/
-│   └── main/
-│       └── assets/
-|           └── data.enc
-│           └── kalit.enc
-|            
-```
-
-Yuqoridagi holatda `faylManzili()` yordamida `config.json` fayl o‘qilishi mumkin.
-
-## 🚦 `vpnniAniqlash()` Funktsiyasi
+## 🚦 Vpnni aniqlash
 
 Ushbu funksiya ilova ishga tushgan qurilmada **VPN ulanishi mavjud yoki yo‘qligini** aniqlash uchun ishlatiladi.  
-Agar qurilmada faol VPN ulanishi mavjud bo‘lsa, funksiya `true` qiymat qaytaradi, aks holda `false`.
+Agar qurilmada vpn holatini aniqlash uchun data.jsonda `vpn`:`true` qilish yetarli agar qurulmada vpn yoniq bo'lsa ilova o'z ish jarayonini yakunlaydi.
 
 > 🔒 **VPN mavjudligi xavfsizlik talablariga zid bo‘lishi mumkin.**
 > VPN orqali foydalanuvchi o'z IP manzilini yashirishi, trafikni ushlab tahlil qilishi (MITM) va xavfsizlikni chetlab o'tuvchi vositalardan foydalanishi mumkin. 
@@ -366,59 +525,19 @@ Agar qurilmada faol VPN ulanishi mavjud bo‘lsa, funksiya `true` qiymat qaytara
 **Eslatma:** Funksiya ishlashi uchun internetga ruxsat kerak.
 #
 
-### 💻 Foydalanish namunasi
-
-Quyidagi kod `BaseActivity` klassida `onResume()` ichida `vpnniAniqlash()` funksiyasini qanday chaqirishni ko‘rsatadi:
-
-```kotlin
-  override fun onResume() {
-        super.onResume()
-        val isVpn = lib.vpnniAniqlash()
-        if (isVpn) {
-            Toast.makeText(this, "Sizning qurulmangizda vpn aniqlandi", Toast.LENGTH_LONG).show()
-            finishAffinity()
-            System.exit(0)
-        }
-    }
-```
 ---
 
-## 🧪 `emulyatorniAniqlash()` Funktsiyasi
+## 🧪 Emulatorni aniqlash
 
 Ushbu funksiya ilova ishga tushgan qurilmaning **emulyator (soxta qurilma)** ekanligini aniqlash uchun mo‘ljallangan.  
-Agar ilova real qurilmada ishlayotgan bo‘lsa, funksiya `false` qaytaradi, aks holda emulyator aniqlansa `true` qiymat qaytaradi.
+Agar ilova real qurilmada ishlayotgan bo‘lsa, ilova ishlashni davom etadi aks holda ilova ish jarayonini yakunlaydi. Ushbu funksiyani ishlatish uchun `data.json` fayldagi `emulyator`:`true` qilish yetarli.
 
 > ⚠️ **Emulyator (simulyator)da ishlayotgan ilova xavfsizlik nuqtai nazaridan ishonchsiz hisoblanadi.**  
 > Emulyator yordamida ilovaning serverga yuborayotgan va qabul qilayotgan ma'lumotlari tahlil qilinib, maxfiy ma’lumotlar ko'rish mumkin.
 
-> ✅ **Eslatma:**  
-> Agar emulyator aniqlansa, foydalanuvchiga ogohlantiruvchi xabar chiqaring va ilovani yopish uchun quyidagi funksiyalardan foydalaning:
->
-> ```kotlin
-> finishAffinity() 
-> System.exit(0)  
-> ```
-#
-
-### 💻 Foydalanish namunasi
-
-Quyidagi kod `BaseActivity` klassida `onResume()` ichida `emulyatorniAniqlash()` funksiyasini qanday chaqirishni ko‘rsatadi:
-
-```kotlin
- override fun onResume() {
-        super.onResume()
-        val isEmulyator = lib.emulyatorniAniqlash(this)
-        if (isEmulyator) {
-            Toast.makeText(this, "Ilova emulyatorda ishga tushdi", Toast.LENGTH_LONG).show()
-            finishAffinity()
-            System.exit(0)
-        }
-    }
-```
-
 
 ---
-## ⚠️ `rootniAniqlash()` Funktsiyasi
+## ⚠️ Root qurulmalarni aniqlash
 Ilovani Play Marketga o'rnatishdan oldin quydagi sozlamalarni qilish kerak bo'ladi.
 Console Play Marketga o'tib (https://play.google.com/console) quydagi ketma ketliklarni bajaring.
 
@@ -444,7 +563,7 @@ Monitor and improve
 Bu bo'limlarda siz `Device integrity checks` yoki `Strong integrity checks` ni tanlab qo'yishingiz zarur bu root qilingan va haqiqiyligi yo'qolgan qurulmalarda play marketdan ilova chiqmasligini taminlaydi.
 
 Ushbu funksiya ilova ishga tushgan qurilmaning **root qilinganligini** aniqlash uchun ishlatiladi.  
-Agar qurilma root qilingan bo‘lsa, funksiya `true` qiymat qaytaradi, aks holda `false`.
+Agar qurilma root qilingan bo‘lsa, ilova rootlangan qurilmada ishga tushmaydi.
 
 > 🔐 **Root qilingan qurilma xavfsizlik talablariga javob bermaydi.**  
 > Bunday qurilmalar ilovalarning:
@@ -453,116 +572,56 @@ Agar qurilma root qilingan bo‘lsa, funksiya `true` qiymat qaytaradi, aks holda
 >    Trafik (token/parollar) kuzatilib, tahlil qilinadi.
 
 
-> ✅ **Eslatma:**  
-> Agar qurilma root qilingan bo‘lsa (`true` qaytsa), foydalanuvchiga ogohlantiruvchi xabar chiqarish va ilovani darhol yopish kerak:
->
-> ```kotlin
-> finishAffinity() 
-> System.exit(0)  
-> ```
-#
 
-### 💻 Foydalanish namunasi
+## 🛡️ Ilovani play marketdan o'rnatilganligini tekshirish.
 
-Quyidagi kod `BaseActivity` klassida `onResume()` ichida `rootniAniqlash()` funksiyasini qanday chaqirishni ko‘rsatadi:
+Ushbu funksiya ilova Play Market orqali o‘rnatilganligini aniqlash uchun ishlatiladi. Agar ilova boshqa manbadan (masalan .apk orqali qo‘lda) o‘rnatilgan bo‘lsa, bu xavfsizlikka tahdid solishi mumkin. Ushbu funksiya ishlashi uchun `data.json` fayldagi `playmarket`:`true` qilish yetarli.
 
-```kotlin
- override fun onResume() {
-        super.onResume()
-        val isRoot = lib.rootniAniqlash()
-        if (isRoot) {
-            Toast.makeText(this, "Ilova root qurulmada ishga tushdi", Toast.LENGTH_LONG).show()
-            finishAffinity()
-            System.exit(0)
-        }
-    }
-```
 ---
-## 🛡️ `playMarketniAniqlash()` Funktsiyasi
+## ✍️ Ilova imzosini tekshirish
 
-Ushbu funksiya ilova Play Market orqali o‘rnatilganligini aniqlash uchun ishlatiladi. Agar ilova boshqa manbadan (masalan .apk orqali qo‘lda) o‘rnatilgan bo‘lsa, bu xavfsizlikka tahdid solishi mumkin.
+Ilova imzosini tekshirish funksiyasi ilovaning ruxsatsiz o‘zgartirilgan APK emasligini aniqlash uchun mo‘ljallangan. U ilovaning imzosini tekshiradi va agar u original imzo bilan mos tushmasa, ilova ishlash jarayonini to'xtatadi. Bu funksiyadan foydalanish uchun `data.json` faylidagi `imzo` ga ilovani imzolash uchun imzo faylni `sha256` qiymatni joylashtiring.
 
-> ✅ **Eslatma:**  
-> Agar ilova Play Marketdan yuklanmagan bo‘lsa (`false` qaytsa), foydalanuvchiga ogohlantiruvchi xabar chiqarish va ilovani darhol yopish kerak:
->
-> ```kotlin
-> finishAffinity() 
-> System.exit(0)  
-> ```
-#
+---
+## `malumotolish()` funksiyasi
+`malumotolish()` funksiyasi orqali siz `data.enc` faylni ichiga saqlagan malumotlaringizni olishingiz mumkin bo'ladi. Bu funksiyadan foydalanish uchun siz quydagi usulda shifrlangan malumotlaringizni xavfsiz tarzda olishingiz mumkin bo'ladi.
 
-### 💻 Foydalanish namunasi
+```java
+import uz.zirh.zirhlib.ZirhMilliy
 
-Quyidagi kod `BaseActivity` klassida `onResume()` ichida `playMarketniAniqlash()` funksiyasini qanday chaqirishni ko‘rsatadi:
+class MainActivity : ComponentActivity() {
 
-```kotlin
- override fun onResume() {
-    super.onResume()
-    val isPlayMarket = lib.playMarketniAniqlash(this)
-    if (!isPlayMarket) {
-        Toast.makeText(this, "Iltimos ilovani Play Marketdan yuklab oling", Toast.LENGTH_LONG).show()
-        finishAffinity()
-        System.exit(0)
+    private lateinit var lib: ZirhMilliy
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        lib = ZirhMilliy()
+
+        val testM = lib.malumotolish("hashlar")
+        
     }
 }
+
 ```
+
+
 ---
-## ✍️ `imzoAniqlash()` Funktsiyasi
+## 📡 `malumotalmashish()` funksiyasi 
 
-imzoAniqlash() funksiyasi ilovaning ruxsatsiz yoki o‘zgartirilgan APK emasligini aniqlash uchun mo‘ljallangan. U ilovaning imzosini tekshiradi va agar u original imzo bilan mos tushmasa, false qiymat qaytaradi.
+`malumotalmashish()` funksiyasi — server bilan aloqani ta'minlovchi asosiy metod bo‘lib, u xavfsiz tarzda so‘rov yuborish va javob olish imkonini beradi. Bu funksiya orqali ilova server bilan xavfsiz HTTP aloqani taminlaydi. Funksiya quydagi parametrlarni kutub qoladi.
 
-> ✅ **Eslatma:**  
-> Agar ilova Imzosi xato bo‘lsa (`false` qaytsa), foydalanuvchiga ogohlantiruvchi xabar chiqarish va ilovani darhol yopish kerak:
->
-> ```kotlin
-> finishAffinity() 
-> System.exit(0)  
-> ```
-#
-
-### 💻 Foydalanish namunasi
-
-Quyidagi kod `BaseActivity` klassida `onResume()` ichida `imzoAniqlash()` funksiyasini qanday chaqirishni ko‘rsatadi:
-
-```kotlin
- override fun onResume() {
-        super.onResume()
-        val isSignature = lib.imzoAniqlash(this)
-        if (!isSignature) {
-            Toast.makeText(this, "Ilova imzosi xato!", Toast.LENGTH_LONG).show()
-            finishAffinity()
-            System.exit(0)
-        }
-    }
-```
-# Flutter
----
-## 📡 `malumotOlish()` Funksiyasi
-
-`malumotOlish()` funksiyasi — server bilan aloqani ta'minlovchi asosiy metod bo‘lib, u xavfsiz tarzda so‘rov yuborish va javob olish imkonini beradi. Bu funksiya AES yordamida shifrlangan `data.enc` faylidagi domen, path va boshqa parametrlar asosida HTTP so‘rov yuboradi.
-
-## 🛡️ SSL Pinning
-
-> **SSL Pinning** vositasi orqali ilova faqat **ishonchli sertifikat** bilan ishlovchi serverga ulanadi. Bu orqali man-in-the-middle (MITM) hujumlarining oldi olinadi.
-
-**Server sertifikatidan hash olish:**
-
-```bash
-echo | openssl s_client -servername your_server_address -connect your_server_address:443 | openssl x509 -pubkey -noout | openssl pkey -pubin -outform DER | openssl dgst -sha256 -binary | openssl enc -base64
-```
-> ✅ **Eslatma:**  
-> Olingan hash qiymat json faylidagi hashlar maydonida bo'lishi kerak aks holda serverga so'rov yuborilmaydi.
->
 ### ⚙️ Parametrlar
 
 | Parametr      | Turi             | Tavsif |
 |---------------|------------------|--------|
-| `domainIndex` | `Int`            | Domenlar ro‘yxatidan indeks (0 — birinchi domen). |
-| `pathIndex`   | `Int`            | Havolalar (`endpoint`) ro‘yxatidan indeks. |
-| `id`          | `String?`        | Qo‘shimcha identifikator (masalan: `12` → `/posts/12`). |
-| `method`      | `String`         | HTTP metod: `GET`, `POST`, `PUT`, `DELETE`. |
-| `headers`     | `Array<String>?` | Sarlavhalar (headers), ixtiyoriy. |
-| `body`        | `String?`        | JSON formatdagi so‘rov ma’lumotlari, ixtiyoriy. |
+| `url` | `String`            | Url manzil masalan(https://example.com/api/v1/users. |
+| `METHOD`   | `String`            | HTTP metod: `GET`, `POST`, `PUT`, `DELETE`. |
+| `body`          | `String?`        | Body ixtiyoriy. |
+| `headers`      | `String`         | Sarlavhalar (headers), ixtiyoriy. |
+| `filePath`      | `String`         | Fayl joylashgan joyi |
+| `fileBytes`     | `Array<String>?` | Fayl hajmi. |
+| `fileName`        | `String?`        | Fayl nomi. |
+| `fileField`        | `String?`        | Fayl qiymati. |
 
 ### 🔁 Natija
 Funksiya `String` (odatda JSON) formatida javob qaytaradi. Uni `Gson` yordamida quyidagicha obyektga aylantirish mumkin:
@@ -571,92 +630,148 @@ Funksiya `String` (odatda JSON) formatida javob qaytaradi. Uni `Gson` yordamida 
 val gson = Gson()
 val parsed = gson.fromJson(jsonString, GetResponse::class.java)
 ```
+
+Ushbu funksiyadan foydalanish uchun quydagi namunadan foydalansangiz bo'ladi.
+
 ### `GET` so‘rov
+
 ```kotlin
-   Thread{
-        val res: String = lib.malumotOlish(0, 0, null, "GET", null, null)
-  //            MALUMOT STRING FARMATDA KELADI MALUMOTNI JSON PARSE QILISH KERAK
-        runOnUiThread {
-            Toast.makeText(this, "GET: ${res}", Toast.LENGTH_SHORT).show()
+private fun sendGet() {
+    Thread {
+        try {
+
+            runOnUiThread {
+                resultText = "GET yuborilmoqda..."
+            }
+
+            val response = lib.malumotalmashish(
+                "https://jsonplaceholder.typicode.com/posts/1", // url
+                "GET",// method
+                null, // body
+                null, // headers
+                null, // filePath
+                null, // fileBytes
+                null, // fileName
+                null  // fileField
+            )
+
+            runOnUiThread {
+                resultText = response
+            }
+
+        } catch (e: Exception) {
+            Log.e("ApiTest", "Xatolik: ${e.message}", e)
+
+            runOnUiThread {
+                resultText = "Xatolik: ${e.message}"
+            }
         }
-  //            JSON PARSE QILISH MALUMOTNI
-        val gson = Gson()
-        val parsed = gson.fromJson(res, GetResponse::class.java)
     }.start()
+}
 ```
 ### `POST` so‘rov
+
 ```kotlin
-      val name = "Sarlavha"
-      val desc = "Bu postning tanasi"
+ private fun sendRequest(method: String) {
+        Thread {
+            try {
+                runOnUiThread {
+                    resultText = "Ma'lumot yuborilmoqda..."
+                }
 
-      val postData = HashMap<String, String>()
-      postData["title"] = name
-      postData["body"] = desc
-      postData["userId"] = "1"
-      val jsonBody: String = gson.toJson(postData)
-      val headers = arrayOf("Content-Type: application/json" /*,"Authorization: Bearer YOUR_TOKEN"*/)
-      Thread {
-          try {
-              val res = lib.malumotOlish(0, 0, null, "POST", headers, jsonBody)
-//                JSON PARSEDAN OLDIN STRING FARMATDA RESPONSE QAYTADI MALUMOTNI JSON PARSE QILISH KERAK
-              runOnUiThread {
-                  Toast.makeText(this, "POST: ${res}", Toast.LENGTH_SHORT).show()
-              }
-//                JSON PARSE QILISH
-              val gson = Gson()
-              val parsed = gson.fromJson(res, DataResponse::class.java)
+                val body = """{"title":"zirh test","body":"sample body","userId":1}"""
+                val response = lib.malumotalmashish(
+                    "https://jsonplaceholder.typicode.com/posts",
+                    POST,
+                    body,
+                    """{"Content-Type":"application/json"}""",
+                    null,
+                    null,
+                    null,
+                    null
+                )
 
-          } catch (e: Exception) {
-              Log.e("POST ERROR", "Xatolik: ${e.message}")
-          }
-      }.start()
+                runOnUiThread {
+                    resultText = "response:\n$response"
+                }
+            } catch (e: Exception) {
+                Log.e("ApiTest", "Xatolik: ${e.message}", e)
+                runOnUiThread {
+                    resultText = "$method xatolik: ${e.message}"
+                }
+            }
+        }.start()
+    }
 ```
 
 ### `PUT` so‘rov
 ```kotlin
-      val updatedData: MutableMap<String, String> = HashMap()
-      updatedData["title"] = "Yangi sarlova"
-      updatedData["body"] = "Put so'rovini test qilish"
-      updatedData["userId"] = java.lang.String.valueOf(1)
+ private fun editRequest(method: String) {
+        Thread {
+            try {
+                runOnUiThread {
+                    resultText = "Ma'lumot tahrirlanmoqda..."
+                }
 
-      val putBody = gson.toJson(updatedData)
-      val putHeaders = arrayOf("Content-Type: application/json")
-      Thread {
-          try {
-              // IDISI 7 GA TENG MALUMOTNI TAHRIRLASH
-              val res = lib.malumotOlish(0, 0, "7", "PUT", putHeaders, putBody)
-              runOnUiThread {
-                  Toast.makeText(this, "PUT: ${res}", Toast.LENGTH_SHORT).show()
-              }
+                val body = """{"title":"zirh test","body":"sample body","userId":1}"""
+                val response = lib.malumotalmashish(
+                    "https://jsonplaceholder.typicode.com/posts/1",
+                    PUT,
+                    body,
+                    """{"Content-Type":"application/json"}""",
+                    null,
+                    null,
+                    null,
+                    null
+                )
 
-              val parsed = gson.fromJson(res, DataResponse::class.java)
-
-          } catch (e: java.lang.Exception) {
-              Log.e("PUT REQUEST ERROR", "Xatolik yuz berdi:", e)
-          }
-      }.start()
+                runOnUiThread {
+                    resultText = "response:\n$response"
+                }
+            } catch (e: Exception) {
+                Log.e("ApiTest", "Xatolik: ${e.message}", e)
+                runOnUiThread {
+                    resultText = "$method xatolik: ${e.message}"
+                }
+            }
+        }.start()
+    }
 ```
 
 ### `DELETE` so‘rov
+
 ```kotlin
-   Thread {
-        try {
-            // IDISI 2 GA TENG MALUMOTNI O'CHIRISH
-            val res: String = lib.malumotOlish(0, 0, "2", "DELETE", null, null)
-            runOnUiThread {
-                Toast.makeText(this, "DELETE: ${res}", Toast.LENGTH_SHORT).show()
+ private fun deleteRequest(method: String) {
+        Thread {
+            try {
+                runOnUiThread {
+                    resultText = "Ma'lumot o'chirilmoqda..."
+                }
+
+                val response = lib.malumotalmashish(
+                    "https://jsonplaceholder.typicode.com/posts/1",
+                    DELETE,
+                    null,
+                    null,
+                    null,
+                    null,
+                    null,
+                    null
+                )
+
+                runOnUiThread {
+                    resultText = "response:\n$response"
+                }
+            } catch (e: Exception) {
+                Log.e("ApiTest", "Xatolik: ${e.message}", e)
+                runOnUiThread {
+                    resultText = "$method xatolik: ${e.message}"
+                }
             }
+        }.start()
+    }
 
-            val parsed = gson.fromJson(res, DataResponse::class.java)
-
-        } catch (e: java.lang.Exception) {
-            Log.e("DELETE ERROR", "Xatolik yuz berdi:", e)
-        }
-    }.start()
 ```
-> ✅ **Eslatma:** 
-> Yuqoridagi `rootniAniqlash()`,`emulyatorniAniqlash()`,`vpnniAniqlash()`, `imzoAniqlash()`, `playMarketniAniqlash()`  funksiyalarni ilovani turli qismlarida takror ishlatish tavsiya etiladi(Ilova ishga tushganda, har bir Activity da, API so'rovlarini jo'natishdan oldin, ...)
-
 
 
 

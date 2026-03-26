@@ -104,7 +104,7 @@ flutter_project/
 ├── android/
 │   ├── app/
 │   │   ├── libs/                            ← 📂 Bu yerga .aar fayl qo‘yiladi
-│   │   │   └── zirh-mobil-lib-release.aar   ← 📦 JNI kutubxonani o‘z ichiga olgan .aar fayl
+│   │   │   └── zirhlib-release-v2.0.0.aar   ← 📦 JNI kutubxonani o‘z ichiga olgan .aar fayl
 │   │   ├── src/
 │   │   └── build.gradle.kts
 │   └── ...

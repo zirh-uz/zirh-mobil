@@ -298,6 +298,7 @@ typedef DartRequestFn = ffi.Pointer<Utf8> Function(
 Bizda data.json quyidagicha bo'lgan holatda
 ```dart
 {
+    "imzo": "f2eac1edc0332ffd6d47cc446f8cc636a5b207aeac49c397b8f1b497a36c6089",
     "playmarket": false,
     "emulyator": true,
     "vpn": true,
@@ -398,6 +399,7 @@ Birinchi bosqichda maxfiy ma'lumotlar `data.json` faylga quyidagi formatda yozil
 
 ```json
 {
+    "imzo": "f2eac1edc0332ffd6d47cc446f8cc636a5b207aeac49c397b8f1b497a36c6089",
     "playmarket": false,
     "emulyator": true,
     "vpn": true,

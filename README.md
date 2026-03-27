@@ -1,24 +1,31 @@
 # Zirh-mobil kutubxonasini ishlatish bo'yicha yo'riqnoma
+
 ---
+
 [![Android](https://img.shields.io/badge/Android-blue?style=for-the-badge)](#android)
 [![Flutter](https://img.shields.io/badge/Flutter-blue?style=for-the-badge)](#Flutter)
 
 ---
+
 # Android
 
 Zirh-mobil kutubxonasidan foydalanishni boshlash uchun uni o'z Android loyihangizga to'g'ri ulash lozim. Quyidagi bosqichlarni bajaring:
 
-
 # `aar` fayl orqali kutubxonani ulash
+
 `aar` faylni kutubxonaga qo'shish uchun loyihangizdagi `app` papkasining ichida yangi `libs` nomli papka yarating va unga `.aar` formatidagi
 Zirh-mobil kutubxona faylini joylashtiring.
+
 ```
 app/
  └── libs/
       └── zirhlib-release-v2.0.0.aar
 ```
+
 #
+
 ## `settings.gradle` yoki `settings.gradle.kts` faylida `flatDir` sozlamasini yozing
+
 ```kotlin
 dependencyResolutionManagement {
     repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
@@ -31,20 +38,27 @@ dependencyResolutionManagement {
     }
 }
 ```
+
 ## `app` modulining `build.gradle` faylida kutubxonani ulash
+
 #
+
 ```kotlin
 dependencies {
     implementation(":zirhlib-release-v2.0.0.aar")
 }
 ```
+
 > **Eslatma:**
+>
 > - Kutubxonaning nomi `.aar` fayl nomi bilan to‘g‘ri kelishi kerak `(zirhlib-releasex.x.x.aar)`.
 
 # Zirh kutubxonasini `jitpack` orqali loyihaga qo'shish
 
 #
+
 ## `settings.gradle` yoki `settings.gradle.kts` faylida quydagicha yozing
+
 ```kotlin
 dependencyResolutionManagement {
     repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
@@ -55,8 +69,11 @@ dependencyResolutionManagement {
     }
 }
 ```
+
 ## `app` modulining `build.gradle` faylida kutubxonani ulash
+
 #
+
 ```kotlin
 dependencies {
     implementation("com.github.Zirh-uz:mobil-lib:2.0.0")
@@ -64,18 +81,23 @@ dependencies {
 ```
 
 #
+
 `AndroidManifest.xml` faylliga internet uchun ruxsatlarni(permission) qo'shing.
+
 ```xml
 <uses-permission android:name="android.permission.INTERNET" />
 <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
 ```
+
 Quydagi queriesni `AndroidManifest.xml` faylga qo'shing
+
 ```xml
  <queries>
        <package android:name="com.android.vending" />
        <package android:name="com.sec.android.app.samsungapps" />
 </queries>
 ```
+
 # Flutter
 
 Zirh-mobile kutubxonasidan foydalanishni boshlash uchun uni o'z Flutter loyihangizga to'g'ri ulash lozim. Quyidagi bosqichlarni bajaring:
@@ -86,8 +108,8 @@ Flutter loyihamizni `android/app` papkani ichiga `libs` nomli kutubxona yaratib 
 flutter_project/
 ├── android/
 │   ├── app/
-│   │   ├── libs/               
-│   │   │  
+│   │   ├── libs/
+│   │   │
 │   │   ├── src/
 │   │   └── build.gradle.kts
 │   ├── build.gradle.kts
@@ -99,6 +121,7 @@ flutter_project/
 ```
 
 Keyin esa libs papkani ichiga zirhlib-debug.aar kutubxonamizni joylashtirib olamiz
+
 ```
 flutter_project/
 ├── android/
@@ -112,7 +135,9 @@ flutter_project/
 ├── pubspec.yaml
 └── ...
 ```
+
 `settings.gradle.kts` faylida `flatDir` sozlamasini yozing
+
 ```
 repositories {
         google()
@@ -123,19 +148,25 @@ repositories {
         }
     }
 ```
+
 app modulining build.gradle.kts faylida kutubxonani ulash
+
 ```
 dependencies {
     implementation(files("libs/zirhlib-release-v2.0.0.aar"))
 }
 ```
+
 jitpack orqali app modulining build.gradle.kts faylida kutubxonani ulash
+
 ```
 dependencies {
     implementation("com.github.Zirh-uz:mobil-lib:2.0.0")
 }
 ```
-jitpack orqali bo'lganda android/build.gradle.kts fayliga quyidagi o'zgarishni qilish kerak bo'ladi 
+
+jitpack orqali bo'lganda android/build.gradle.kts fayliga quyidagi o'zgarishni qilish kerak bo'ladi
+
 ```
 allprojects {
     repositories {
@@ -145,6 +176,7 @@ allprojects {
     }
 }
 ```
+
 Eslatma:
 
 Kutubxonaning nomi `.aar` fayl nomi bilan to'g'ri kelishi kerak `(zirh-mobil-lib-release.aar)`.
@@ -158,16 +190,18 @@ app/
 │       └── assets/
 |           └── data.enc  ✅ Shifrlangan JSON
 │           └── kalit.enc ✅ RSA bilan shifrlangan AES kalit
-|            
+|
 ```
 
- main.dart faylida native (C/C++) kutubxona bilan qanday ishlash ko‘rsatiladi. Bu yerda FFI (Foreign Function Interface) yordamida .so fayldan ma’lumotlar olinadi.
+main.dart faylida native (C/C++) kutubxona bilan qanday ishlash ko‘rsatiladi. Bu yerda FFI (Foreign Function Interface) yordamida .so fayldan ma’lumotlar olinadi.
+
 ```dart
 import 'dart:convert';
 import 'dart:ffi' as ffi;
 import 'package:ffi/ffi.dart';
 import 'package:flutter/material.dart';
 ```
+
 dart:ffi → native (C/C++) kod bilan ishlash uchun
 ffi.dart → pointerlarni boshqarish (UTF8 conversion)
 dart:convert → JSON parsing uchun
@@ -178,30 +212,39 @@ Native funksiya signaturalari
 typedef NativeGetInfoFn = ffi.Pointer<Utf8> Function(ffi.Pointer<Utf8> key);
 typedef DartGetInfoFn = ffi.Pointer<Utf8> Function(ffi.Pointer<Utf8> key);
 ```
+
 Bu klass native kutubxona bilan ishlashni markazlashtiradi. (Ilovada faqat bitta instance ishlaydi)
+
 ```dart
 static final ZirhService _instance = ZirhService._internal();
 factory ZirhService() => _instance;
 ```
+
 Native kutubxonani yuklash
 
 ```dart
 final lib = ffi.DynamicLibrary.open('libmobil.so');
 ```
+
 Funksiyani bog‘lash
 Native funksiyani Flutterga ulaydi
 Key orqali ma’lumot qaytaradi
+
 ```dart
 _getInfo = lib.lookupFunction<NativeGetInfoFn, DartGetInfoFn>(
   'flutter_malumot_olish',
 );
 
 ```
+
 Ma’lumot olish funksiyalari
+
 ```dart
 String get(String key)
 ```
+
 ## Minimal kod misolida ko'rishimiz mumkin
+
 ```dart
 import 'dart:convert';
 import 'dart:ffi' as ffi;
@@ -266,9 +309,11 @@ void main() {
   ));
 }
 ```
-## Malumot Almashish 
+
+## Malumot Almashish
 
 Dart tomonidan chaqiriladi va native kutubxona bilan to‘g‘ridan-to‘g‘ri bog‘lanadi.
+
 ```dart
 typedef NativeRequestFn = ffi.Pointer<Utf8> Function(
     ffi.Pointer<Utf8>,
@@ -295,7 +340,9 @@ typedef DartRequestFn = ffi.Pointer<Utf8> Function(
     );
 
 ```
+
 Bizda data.json quyidagicha bo'lgan holatda
+
 ```dart
 {
     "imzo": "f2eac1edc0332ffd6d47cc446f8cc636a5b207aeac49c397b8f1b497a36c6089",
@@ -339,7 +386,9 @@ Bizda data.json quyidagicha bo'lgan holatda
     }
 }
 ```
+
 FFI orqali bog'lanish
+
 ```dart
  final lib = ffi.DynamicLibrary.open('libmobil.so');
 
@@ -351,7 +400,9 @@ _request = lib.lookupFunction<NativeRequestFn, DartRequestFn>(
   'flutter_malumot_almashish',
 );
 ```
+
 API chaqirish qismi
+
 ```dart
 // GET
 zirh.callApi("get_post");
@@ -366,8 +417,8 @@ zirh.callApi("update_post", body: {"id": 1, "title": "Updated", "body": "Yangila
 zirh.callApi("delete_post");
 ```
 
-
 ---
+
 ## 🔐 Ma'lumotlarni Shifrlash
 
 ### ✨ Nima uchun shifrlash zarur?
@@ -381,69 +432,70 @@ Shuning uchun **shifrlash yordamida bu ma’lumotlarni himoyalash** va ularni fa
 #
 
 ### 🔒 Shifrlanadigan ma’lumotlar
-- 🌐 Backend URL manzillari  
-- 📁 Server path / directory strukturalari  
-- 🔑 API tokenlar, maxfiy kalitlar  
-- 🧮 Hashlangan qiymatlar (masalan, SHA256)  
-- 🖋 Ilovaning imzo sertifikati (signature)  
+
+- 🌐 Backend URL manzillari
+- 📁 Server path / directory strukturalari
+- 🔑 API tokenlar, maxfiy kalitlar
+- 🧮 Hashlangan qiymatlar (masalan, SHA256)
+- 🖋 Ilovaning imzo sertifikati (signature)
 - 🎨 Ilova UI komponentalari
 - ⚙️ Ilovaga zarur mantiqiy qiymatlar
 - 🔤 Ilovada ishlatiladigan stringlar
+
 #
 
 ### 📌 Shifrlash va foydalanish ketma-ketligi
+
 Quyidagi bosqichlar orqali ilova uchun maxfiy ma’lumotlarni shifrlash va undan xavfsiz foydalanish mumkin.
+
 ### 1. 📄 JSON fayl tayyorlash
 
 Birinchi bosqichda maxfiy ma'lumotlar `data.json` faylga quyidagi formatda yoziladi:
 
 ```json
 {
-    "imzo": "f2eac1edc0332ffd6d47cc446f8cc636a5b207aeac49c397b8f1b497a36c6089",
-    "playmarket": false,
-    "emulyator": true,
-    "vpn": true,
+	"imzo": "f2eac1edc0332ffd6d47cc446f8cc636a5b207aeac49c397b8f1b497a36c6089",
+	"playmarket": false,
+	"emulyator": true,
+	"vpn": true,
 
-    "hashlar": [
-        "sha256//k+swi1D7Mu27FDJ9DAfns27/YipZz5s7BezuYsaXM/s=",
-        "sha256//ItYAkeNu4OWLwJwqsG+rlGN46LIFJkfrRcx9BFbuTtA=",
-        "sha256//xvnBemDjgnzraqJYsDMz2CgXT2Zq3CFBfmyyYSdLdrU=",
-        "sha256//5BWYNtPxvjsl+qhQLxo3jz3ZaK74xyHT/QdOhBB07i0="
-    ],
+	"hashlar": [
+		"sha256//k+swi1D7Mu27FDJ9DAfns27/YipZz5s7BezuYsaXM/s=",
+		"sha256//ItYAkeNu4OWLwJwqsG+rlGN46LIFJkfrRcx9BFbuTtA=",
+		"sha256//xvnBemDjgnzraqJYsDMz2CgXT2Zq3CFBfmyyYSdLdrU=",
+		"sha256//5BWYNtPxvjsl+qhQLxo3jz3ZaK74xyHT/QdOhBB07i0="
+	],
 
-    "domainlar": [
-        "https://jsonplaceholder.typicode.com",
-        "https://httpbin.org"
-    ],
+	"domainlar": ["https://jsonplaceholder.typicode.com", "https://httpbin.org"],
 
-    "api": {
-        "base_url": "https://jsonplaceholder.typicode.com",
-        "endpoints": {
-            "get_post": {"path": "/posts/1", "method": "GET"},
-            "create_post": {"path": "/posts", "method": "POST"},
-            "update_post": {"path": "/posts/1", "method": "PUT"},
-            "delete_post": {"path": "/posts/1", "method": "DELETE"}
-        }
-    },
+	"api": {
+		"base_url": "https://jsonplaceholder.typicode.com",
+		"endpoints": {
+			"get_post": { "path": "/posts/1", "method": "GET" },
+			"create_post": { "path": "/posts", "method": "POST" },
+			"update_post": { "path": "/posts/1", "method": "PUT" },
+			"delete_post": { "path": "/posts/1", "method": "DELETE" }
+		}
+	},
 
-    "ui": {
-        "colors": {
-            "background": "#0F172A",
-            "card": "#1E293B",
-            "primary": "#2563EB",
-            "text_light": "#FFFFFFB3",
-            "text_dark": "#FFFFFF"
-        },
-        "labels": {
-            "dashboard_title": "Zirh Dashboard",
-            "vpn_status": "VPN",
-            "emulator_status": "Emulyator",
-            "playmarket_status": "Play Market"
-        },
-        "buttons": {
-            "refresh": "Yangilash"
-        }
-    }
+	"ui": {
+		"colors": {
+			"background": "#0F172A",
+			"card": "#1E293B",
+			"primary": "#2563EB",
+			"text_light": "#FFFFFFB3",
+			"text_dark": "#FFFFFF"
+		},
+		"labels": {
+			"dashboard_title": "Zirh Dashboard",
+			"vpn_status": "VPN",
+			"emulator_status": "Emulyator",
+			"playmarket_status": "Play Market"
+		},
+		"buttons": {
+			"refresh": "Yangilash"
+		}
+	}
 }
 ```
 
@@ -456,10 +508,11 @@ echo | openssl s_client -connect kun.uz:443 -servername kun.uz 2>/dev/null \
 | openssl dgst -sha256 -binary \
 | openssl enc -base64
 ```
->SSL Pinning bu ilova va server o'rtasidagi so'rovlarga uchinchi shaxs aralashishidan himoyalaydi.
 
+> SSL Pinning bu ilova va server o'rtasidagi so'rovlarga uchinchi shaxs aralashishidan himoyalaydi.
 
 Yuqoridagi data.jsondan ilovada quyidagicha UI komponentalarini chaqirib ishlatishimiz mumkin bo'ladi.
+Bundan tashqari ichma-ich (nested) ma'lumotlarga murojaat qilishda (.) bilan murojaat qilinadi.
 
 ```dart
 void _loadConfig() {
@@ -479,7 +532,6 @@ void _loadConfig() {
     });
   }
 ```
-
 
 Bu fayl kutubxonani konfiguratsiya fayli bo'lib, agar ilovada `playmarket`, `emulyator` va `vpn` tekshiruvi joriy etish kerak bo'lsa ularni `true` qiymatga tenglab qo'yish kerak bo'ladi. Agarda bu tekshiruvlar kerak bo'lmasa `false` qiymatga tenglash kerak bo'ladi.
 
@@ -539,7 +591,8 @@ rm iv.bin temp.bin
 echo "Tayyor: $OUTPUT_FILE (IV boshiga biriktirildi)"
 
 ```
-Faylni saqlab olganingizdan keyin faylni ishga tushuring natijada sizda shifrlangan `data.enc` fayli hosil bo'ladi. 
+
+Faylni saqlab olganingizdan keyin faylni ishga tushuring natijada sizda shifrlangan `data.enc` fayli hosil bo'ladi.
 
 #
 
@@ -560,9 +613,11 @@ openssl pkeyutl -encrypt -pubin -inkey public_key.pem -in aes.raw -out kalit.enc
 ```
 
 Bu yerda:
+
 - `public_key.pem` – RSA ochiq kalit (yuqorida berilgan)
 - `aes.raw` – AES kalitning binar ko‘rinishi
 - `kalit.enc` – **shifrlangan AES kalit**, bu `data.enc` ni yechish uchun kerak bo‘ladi.
+
 #
 
 ### 📦 7. Fayllarni `assets/` papkaga joylash
@@ -576,11 +631,10 @@ app/
 │       └── assets/
 |           └── data.enc ✅ Shifrlangan JSON
 │           └── kalit.enc ✅ RSA bilan shifrlangan AES kalit
-|            
+|
 ```
 
 > ⚠️ **Eslatma:** Fayl nomlari **majburiy**: `data.enc` va `kalit.enc` bo‘lishi kerak. Kutubxona faqat shu nomlar orqali fayllarni qidiradi.
-
 
 ### ❓ Nega `aes.key` ni `aes.raw` ga aylantirish kerak?
 
@@ -594,10 +648,11 @@ Ushbu funksiya ilova ishga tushgan qurilmada **VPN ulanishi mavjud yoki yo‘qli
 Agar qurilmada vpn holatini aniqlash uchun data.jsonda `vpn`:`true` qilish yetarli agar qurulmada vpn yoniq bo'lsa ilova o'z ish jarayonini yakunlaydi.
 
 > 🔒 **VPN mavjudligi xavfsizlik talablariga zid bo‘lishi mumkin.**
-> VPN orqali foydalanuvchi o'z IP manzilini yashirishi, trafikni ushlab tahlil qilishi (MITM) va xavfsizlikni chetlab o'tuvchi vositalardan foydalanishi mumkin. 
+> VPN orqali foydalanuvchi o'z IP manzilini yashirishi, trafikni ushlab tahlil qilishi (MITM) va xavfsizlikni chetlab o'tuvchi vositalardan foydalanishi mumkin.
 > Bunday hollarda foydalanuvchiga ogohlantiruvchi xabar berish va ilovani ishlashini to‘xtatish yoki yopish tavsiya etiladi.
 
 **Eslatma:** Funksiya ishlashi uchun internetga ruxsat kerak.
+
 #
 
 ---
@@ -610,9 +665,10 @@ Agar ilova real qurilmada ishlayotgan bo‘lsa, ilova ishlashni davom etadi aks 
 > ⚠️ **Emulyator (simulyator)da ishlayotgan ilova xavfsizlik nuqtai nazaridan ishonchsiz hisoblanadi.**  
 > Emulyator yordamida ilovaning serverga yuborayotgan va qabul qilayotgan ma'lumotlari tahlil qilinib, maxfiy ma’lumotlar ko'rish mumkin.
 
-
 ---
+
 ## ⚠️ Root qurilmalarni aniqlash
+
 Ilovani Play Marketga o'rnatishdan oldin quydagi sozlamalarni qilish kerak bo'ladi.
 Console Play Marketga o'tib (https://play.google.com/console) quydagi ketma ketliklarni bajaring.
 
@@ -629,7 +685,9 @@ Monitor and improve
 │  └── Android vitals
 │  └── Policy and programs
 ```
+
 `Monitor and improve` bo'limini tanlang va uni ichidan `Reach and devices` ni tanlang va `Device catalog` ni tanlang buyerda ochilgan oynadan o'ng tomon yuqorida `Manage exclusion rules` ni bosing va Play Integrity qismidan Configure bo'limini tanlang keyin sizda `Store listing visibility` oynasi ochiladi bu yerda sizga 4 ta bo'lim:
+
 - No integrity checks
 - Basic integrity checks
 - Device integrity checks
@@ -643,23 +701,24 @@ Bundan tashqari zararli scriptlarni qo'llanganda ham ilova ishga tushmaydi.
 
 > 🔐 **Root qilingan qurilma xavfsizlik talablariga javob bermaydi.**  
 > Bunday qurilmalar ilovalarning:
->    Ilovaning ichki fayllari (token, ma’lumotlar bazasi) o'g'irlanishi mumkin.
->    Ilova funksiyalari o'zgartirilishi yoki "buzilishi" mumkin (code injection).
->    Trafik (token/parollar) kuzatilib, tahlil qilinadi.
-
-
+> Ilovaning ichki fayllari (token, ma’lumotlar bazasi) o'g'irlanishi mumkin.
+> Ilova funksiyalari o'zgartirilishi yoki "buzilishi" mumkin (code injection).
+> Trafik (token/parollar) kuzatilib, tahlil qilinadi.
 
 ## 🛡️ Ilovani play marketdan o'rnatilganligini tekshirish.
 
 Ushbu funksiya ilova Play Market orqali o‘rnatilganligini aniqlash uchun ishlatiladi. Agar ilova boshqa manbadan (masalan .apk orqali qo‘lda) o‘rnatilgan bo‘lsa, bu xavfsizlikka tahdid solishi mumkin. Ushbu funksiya ishlashi uchun `data.json` fayldagi `playmarket`:`true` qilish yetarli.
 
 ---
+
 ## ✍️ Ilova imzosini tekshirish
 
 Ilova imzosini tekshirish funksiyasi ilovaning ruxsatsiz o‘zgartirilgan APK emasligini aniqlash uchun mo‘ljallangan. U ilovaning imzosini tekshiradi va agar u original imzo bilan mos tushmasa, ilova ishlash jarayonini to'xtatadi. Bu funksiyadan foydalanish uchun `data.json` faylidagi `imzo` ga ilovani imzolash uchun imzo faylni `sha256` qiymatni joylashtiring.
 
 ---
+
 ## `malumotolish()` funksiyasi
+
 `malumotolish()` funksiyasi orqali siz `data.enc` faylni ichiga saqlagan malumotlaringizni olishingiz mumkin bo'ladi. Bu funksiyadan foydalanish uchun siz quydagi usulda shifrlangan malumotlaringizni xavfsiz tarzda olishingiz mumkin bo'ladi.
 
 ```java
@@ -674,32 +733,33 @@ class MainActivity : ComponentActivity() {
         lib = ZirhMilliy()
 
         val testM = lib.malumotolish("hashlar")
-        
+
     }
 }
 
 ```
 
-
 ---
-## 📡 `malumotalmashish()` funksiyasi 
+
+## 📡 `malumotalmashish()` funksiyasi
 
 `malumotalmashish()` funksiyasi — server bilan aloqani ta'minlovchi asosiy metod bo‘lib, u xavfsiz tarzda so‘rov yuborish va javob olish imkonini beradi. Bu funksiya orqali ilova server bilan xavfsiz HTTP aloqani taminlaydi. Funksiya quydagi parametrlarni kutub qoladi.
 
 ### ⚙️ Parametrlar
 
-| Parametr      | Turi             | Tavsif |
-|---------------|------------------|--------|
-| `url` | `String`            | Url manzil masalan(https://example.com/api/v1/users. |
-| `METHOD`   | `String`            | HTTP metod: `GET`, `POST`, `PUT`, `DELETE`. |
-| `body`          | `String?`        | Body ixtiyoriy. |
-| `headers`      | `String`         | Sarlavhalar (headers), ixtiyoriy. |
-| `filePath`      | `String`         | Fayl joylashgan joyi |
-| `fileBytes`     | `Array<String>?` | Fayl hajmi. |
-| `fileName`        | `String?`        | Fayl nomi. |
-| `fileField`        | `String?`        | Fayl qiymati. |
+| Parametr    | Turi             | Tavsif                                               |
+| ----------- | ---------------- | ---------------------------------------------------- |
+| `url`       | `String`         | Url manzil masalan(https://example.com/api/v1/users. |
+| `METHOD`    | `String`         | HTTP metod: `GET`, `POST`, `PUT`, `DELETE`.          |
+| `body`      | `String?`        | Body ixtiyoriy.                                      |
+| `headers`   | `String`         | Sarlavhalar (headers), ixtiyoriy.                    |
+| `filePath`  | `String`         | Fayl joylashgan joyi                                 |
+| `fileBytes` | `Array<String>?` | Fayl hajmi.                                          |
+| `fileName`  | `String?`        | Fayl nomi.                                           |
+| `fileField` | `String?`        | Fayl qiymati.                                        |
 
 ### 🔁 Natija
+
 Funksiya `String` (odatda JSON) formatida javob qaytaradi. Uni `Gson` yordamida quyidagicha obyektga aylantirish mumkin:
 
 ```kotlin
@@ -745,6 +805,7 @@ private fun sendGet() {
     }.start()
 }
 ```
+
 ### `POST` so‘rov
 
 ```kotlin
@@ -781,6 +842,7 @@ private fun sendGet() {
 ```
 
 ### `PUT` so‘rov
+
 ```kotlin
  private fun editRequest(method: String) {
         Thread {
@@ -848,4 +910,3 @@ private fun sendGet() {
     }
 
 ```
-

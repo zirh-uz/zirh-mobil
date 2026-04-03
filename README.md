@@ -36,7 +36,7 @@ dependencyResolutionManagement {
 #
 ```kotlin
 dependencies {
-    implementation(":zirhlib-releasex.x.x.aar")
+    implementation(":zirhlib-release-x.x.x.aar")
 }
 ```
 > **Eslatma:**
@@ -60,7 +60,7 @@ dependencyResolutionManagement {
 #
 ```kotlin
 dependencies {
-    implementation("com.github.Zirh-uz:mobil-lib:2.0.0")
+    implementation("com.github.Zirh-uz:mobil-lib:x.x.x")
 }
 ```
 
@@ -133,7 +133,7 @@ dependencies {
 jitpack orqali app modulining build.gradle.kts faylida kutubxonani ulash
 ```
 dependencies {
-    implementation("com.github.Zirh-uz:mobil-lib:2.0.0")
+    implementation("com.github.Zirh-uz:mobil-lib:x.x.x")
 }
 ```
 jitpack orqali bo'lganda android/build.gradle.kts fayliga quyidagi o'zgarishni qilish kerak bo'ladi 
